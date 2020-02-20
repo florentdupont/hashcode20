@@ -9,12 +9,12 @@ fun main() {
     val resourcesPath = "/src/main/resources"
     val path = homePath + resourcesPath
 
-    Process().run("$path/a_example.txt", "$path/a_example.out")
+//    Process().run("$path/a_example.txt", "$path/a_example.out")
     Process().run("$path/b_read_on.txt", "$path/b_read_on.out")
-    Process().run("$path/c_incunabula.txt", "$path/c_incunabula.out")
-    Process().run("$path/d_tough_choices.txt", "$path/d_tough_choices.out")
-    Process().run("$path/e_so_many_books.txt", "$path/e_so_many_books.out")
-    Process().run("$path/f_libraries_of_the_world.txt", "$path/f_libraries_of_the_world.out")
+//    Process().run("$path/c_incunabula.txt", "$path/c_incunabula.out")
+//    Process().run("$path/d_tough_choices.txt", "$path/d_tough_choices.out")
+//    Process().run("$path/e_so_many_books.txt", "$path/e_so_many_books.out")
+//    Process().run("$path/f_libraries_of_the_world.txt", "$path/f_libraries_of_the_world.out")
 
 }
 
@@ -164,9 +164,9 @@ class Process {
     fun score(library: Library, sumSignup: Int, maxDays: Int): Int {
         var sum = 0
         val finish = sumSignup + library.signupProcess;
-        val remainingDays = max(0, maxDays - finish);
-        val maxNbBook = min(remainingDays * library.numberOfBooksPerDay, library.books.size);
+        val remainingDays = if(maxDays - finish <= 0) 0 else (maxDays - finish)
 
+        val maxNbBook = min(remainingDays * library.numberOfBooksPerDay, library.books.size);
         library.books.subList(0, maxNbBook).forEach {
             sum += bookScores[it]!!
         }
