@@ -8,80 +8,165 @@ fun main() {
     val path = homePath + resourcesPath
 
 
-    run("$path/a_example.txt", "$path/a_example.out")
-//    run("$path/b_read_on.txt", "$path/b_read_on.out")
+    Process().run("$path/a_example.txt", "$path/a_example.out")
+    Process().run("$path/b_read_on.txt", "$path/b_read_on.out")
+    Process().run("$path/c_incunabula.txt", "$path/c_incunabula.out")
+    Process().run("$path/d_tough_choices.txt", "$path/d_tough_choices.out")
+    Process().run("$path/e_so_many_books.txt", "$path/e_so_many_books.out")
+    Process().run("$path/f_libraries_of_the_world.txt", "$path/f_libraries_of_the_world.out")
 
 }
 
-fun run(inFile:String, outFile:String) {
+class Process {
 
-    var readIndex = 0
-    // File(fileName).forEachLine { println(it) }
-    val lines = File(inFile).readLines()
-
-    val first = lines[readIndex]
-    readIndex++
-
-//    println(first)
-    val (bookNumbers, librairyNumbers, dayNumbers) = first.split(" ")
-                                                                         .map { Integer.parseInt(it) }
-
-
-    println("Number of books : $bookNumbers")
-    println("Number of libraries : $librairyNumbers")
-    println("Number of days : $dayNumbers")
-
-    var line = lines[readIndex]
-    readIndex++
-
-//   / println(line)
-    val scoreOfBooks = line.split(" ").map { Integer.parseInt(it) }
 
     val bookScores = hashMapOf<Int, Int>()
-//    println(scoreOfBooks)
-    scoreOfBooks.forEachIndexed { index, score -> bookScores[index] = score }
 
-    println("score of Books : $bookScores")
+    fun run(inFile:String, outFile:String) {
+
+        var readIndex = 0
+        // File(fileName).forEachLine { println(it) }
+        val lines = File(inFile).readLines()
+
+        val first = lines[readIndex]
+        readIndex++
+
+//    println(first)
+        val (bookNumbers, librairyNumbers, dayNumbers) = first.split(" ")
+                .map { Integer.parseInt(it) }
 
 
-    val libraries = hashMapOf<Int, Library>()
-    // itere sur les librairies
-    (0 until librairyNumbers).forEach { libraryNumber ->
+        println("Number of books : $bookNumbers")
+        println("Number of libraries : $librairyNumbers")
+        println("Number of days : $dayNumbers")
+
         var line = lines[readIndex]
         readIndex++
 
-        val (nbBooks, signup, nbBookPerDay) = line.split(" ").map { Integer.parseInt(it) }
+//   / println(line)
+        val scoreOfBooks = line.split(" ").map { Integer.parseInt(it) }
 
-        val library = Library(nbBooks, signup, nbBookPerDay)
-        libraries[libraryNumber] = library
 
-        // les livres de la librarie
-        line = lines[readIndex]
-        readIndex++
-        val books = line.split(" ").map { Integer.parseInt(it) }
+//    println(scoreOfBooks)
+        scoreOfBooks.forEachIndexed { index, score -> bookScores[index] = score }
 
-        library.books = books
-    }
+        println("score of Books : $bookScores")
 
-    println("libraries :")
+
+        val libraries = hashMapOf<Int, Library>()
+        // itere sur les librairies
+        (0 until librairyNumbers).forEach { libraryNumber ->
+            var line = lines[readIndex]
+            readIndex++
+
+            val (nbBooks, signup, nbBookPerDay) = line.split(" ").map { Integer.parseInt(it) }
+
+            val library = Library(libraryNumber, nbBooks, signup, nbBookPerDay)
+            libraries[libraryNumber] = library
+
+            // les livres de la librarie
+            line = lines[readIndex]
+            readIndex++
+            var books = ArrayList<Int>(line.split(" ").map { Integer.parseInt(it) })
+
+            library.books = books
+        }
+
+        println("libraries :")
 //    println(libraries)
-    libraries.forEach {
-        println(it)
+        libraries.forEach {
+            println(it)
+        }
+
+
+        val libsForABook = hashMapOf<Int, ArrayList<Library>>()
+//        (0 until bookNumbers).forEach { bookIndex ->
+//
+//        }
+
+
+        libraries.forEach { (index, lib) ->
+            lib.books.forEach {book->
+                libsForABook.getOrPut(book) { arrayListOf<Library>() }.add(lib)
+            }
+        }
+
+        println("libs for books :")
+        libsForABook.forEach { b ->
+            println("${b.key} -> ${b.value}")
+        }
+
+
+        val submissionLibs = arrayListOf<Library>()
+
+
+        var sumSignup = 0
+        while(sumSignup < dayNumbers && libraries.isNotEmpty()) {
+
+            var scoreMax = Int.MIN_VALUE
+            var libMax:Library = libraries.iterator().next().value
+
+            libraries.forEach { (key, lib) ->
+                val score = score(lib)
+                if(score >= scoreMax) {
+                    scoreMax = score
+                    libMax = lib
+                }
+            }
+            submissionLibs.add(libMax)
+            // on la retire des librairies
+            libraries.remove(libMax.id)
+
+            libMax.books.forEach { book ->
+                libsForABook[book]!!.forEach { lib ->
+                    if(lib != libMax)
+                        lib.books.remove(book)
+
+                }
+            }
+
+            sumSignup += libMax.signupProcess
+        }
+
+        println("submissionLibs")
+        submissionLibs.forEach { it ->
+            println(it)
+        }
+
+
+
+//        // TRAITEMENT PRINCIPAL
+//        libraries.forEach{
+//            val score = score(it)
+//        }
+
+
+
+
+
+
+
+
+
+        // SORTIE
+        File(outFile).printWriter().use { out ->
+            out.println(librairyNumbers)
+
+            submissionLibs.forEach { lib ->
+
+                out.println("${lib.id} ${lib.books.size}")
+                out.println("${lib.books.joinToString(" ")}")
+            }
+        }
+
     }
 
-
-    // traitement
-
-
-
-
-
-
-
-
-    // SORTIE
-    File(outFile).printWriter().use { out ->
-        out.println("OUT")
+    fun score(library: Library): Int {
+        var sum = 0
+        library.books.forEach {
+            sum += bookScores[it]!!
+        }
+        return sum / library.signupProcess
     }
 
 }
