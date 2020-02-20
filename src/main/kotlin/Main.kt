@@ -12,15 +12,15 @@ fun main() {
 //    Process().run("$path/a_example.txt", "$path/a_example.out")
 //    Process().run("$path/b_read_on.txt", "$path/b_read_on.out")
 //    Process().run("$path/c_incunabula.txt", "$path/c_incunabula.out")
-    Process().run("$path/d_tough_choices.txt", "$path/d_tough_choices.out")
-//    Process().run("$path/e_so_many_books.txt", "$path/e_so_many_books.out")
-    Process().run("$path/f_libraries_of_the_world.txt", "$path/f_libraries_of_the_world.out")
+//    Process().run("$path/d_tough_choices.txt", "$path/d_tough_choices.out")
+    Process().run("$path/e_so_many_books.txt", "$path/e_so_many_books.out")
+    //Process().run("$path/f_libraries_of_the_world.txt", "$path/f_libraries_of_the_world.out")
 
 }
 
 class Process {
 
-    val bookScores = hashMapOf<Int, Int>()
+    val bookScores = hashMapOf<Long, Long>()
 
     fun run(inFile:String, outFile:String) {
 
@@ -44,11 +44,11 @@ class Process {
         readIndex++
 
 //   / println(line)
-        val scoreOfBooks = line.split(" ").map { Integer.parseInt(it) }
+        val scoreOfBooks = line.split(" ").map { it.toLong() }
 
 
 //    println(scoreOfBooks)
-        scoreOfBooks.forEachIndexed { index, score -> bookScores[index] = score }
+        scoreOfBooks.forEachIndexed { index, score -> bookScores[index.toLong()] = score }
 
         println("score of Books : $bookScores")
 
@@ -67,9 +67,9 @@ class Process {
             // les livres de la librarie
             line = lines[readIndex]
             readIndex++
-            var books = ArrayList<Int>(line.split(" ").map { Integer.parseInt(it) })
+            var books = ArrayList<Long>(line.split(" ").map { it.toLong() })
 
-            library.books = ArrayList(books.sortedBy{ b -> bookScores[b] })
+            library.books = ArrayList(books.sortedBy{ b -> bookScores[b] }.reversed())
         }
 
         println("libraries :")
@@ -79,7 +79,7 @@ class Process {
         }
 
 
-        val libsForABook = hashMapOf<Int, ArrayList<Library>>()
+        val libsForABook = hashMapOf<Long, ArrayList<Library>>()
 //        (0 until bookNumbers).forEach { bookIndex ->
 //
 //        }
@@ -103,12 +103,12 @@ class Process {
         var sumSignup = 0L
         while(sumSignup < dayNumbers && libraries.isNotEmpty()) {
 
-            var scoreMax = Long.MIN_VALUE
+            var scoreMax = Pair<Long, ArrayList<Long>>(Long.MIN_VALUE, arrayListOf())
             var libMax:Library = libraries.iterator().next().value
 
             libraries.forEach { (key, lib) ->
                 val score = score(lib, sumSignup, dayNumbers)
-                if(score >= scoreMax) {
+                if(score.first >= scoreMax.first) {
                     scoreMax = score
                     libMax = lib
                 }
@@ -118,7 +118,7 @@ class Process {
             libraries.remove(libMax.id)
 
             val toRemove = arrayListOf<Library>()
-            libMax.books.forEach { book ->
+            scoreMax.second.forEach { book ->
                 libsForABook[book]!!.forEach { lib ->
                     if(lib != libMax)
                         lib.books.remove(book)
@@ -165,15 +165,16 @@ class Process {
 
     }
 
-    fun score(library: Library, sumSignup: Long, maxDays: Long): Long {
+    fun score(library: Library, sumSignup: Long, maxDays: Long): Pair<Long, ArrayList<Long>> {
         var sum = 0L
         val finish = sumSignup + library.signupProcess;
         val remainingDays = max(maxDays - finish, 0)
         val maxNbBook = min(remainingDays * library.numberOfBooksPerDay, library.books.size.toLong());
-        library.books.subList(0, maxNbBook.toInt()).forEach {
+        val selectedBooks = library.books.subList(0, maxNbBook.toInt())
+        selectedBooks.forEach {
             sum += bookScores[it]!!
         }
-        return sum / library.signupProcess
+        return Pair(sum / library.signupProcess, ArrayList(selectedBooks))
     }
 
 }

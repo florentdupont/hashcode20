@@ -4,7 +4,7 @@ data class Library(val id:Long,
                     val numberOfBooksPerDay:Long // nombre de jours scanné par jours
                    ) {
 
-    var books = arrayListOf<Int>()
+    var books = arrayListOf<Long>()
 
     override fun toString(): String {
         return "{id : $id, numberOfBook : $numberOfBooks, signupProcess: $signupProcess, numberOfBooksPerDay: $numberOfBooksPerDay, books: $books}"
