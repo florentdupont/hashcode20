@@ -1,7 +1,7 @@
-data class Library(val id:Int,
-                   val numberOfBooks:Int,
-                   val signupProcess:Int,  // en nombre de jours
-                    val numberOfBooksPerDay:Int // nombre de jours scanné par jours
+data class Library(val id:Long,
+                   val numberOfBooks:Long,
+                   val signupProcess:Long,  // en nombre de jours
+                    val numberOfBooksPerDay:Long // nombre de jours scanné par jours
                    ) {
 
     var books = arrayListOf<Int>()

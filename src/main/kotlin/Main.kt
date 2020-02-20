@@ -10,9 +10,9 @@ fun main() {
     val path = homePath + resourcesPath
 
 //    Process().run("$path/a_example.txt", "$path/a_example.out")
-    Process().run("$path/b_read_on.txt", "$path/b_read_on.out")
+//    Process().run("$path/b_read_on.txt", "$path/b_read_on.out")
 //    Process().run("$path/c_incunabula.txt", "$path/c_incunabula.out")
-//    Process().run("$path/d_tough_choices.txt", "$path/d_tough_choices.out")
+    Process().run("$path/d_tough_choices.txt", "$path/d_tough_choices.out")
 //    Process().run("$path/e_so_many_books.txt", "$path/e_so_many_books.out")
 //    Process().run("$path/f_libraries_of_the_world.txt", "$path/f_libraries_of_the_world.out")
 
@@ -33,7 +33,7 @@ class Process {
 
 //    println(first)
         val (bookNumbers, librairyNumbers, dayNumbers) = first.split(" ")
-                .map { Integer.parseInt(it) }
+                .map { it.toLong() }
 
 
         println("Number of books : $bookNumbers")
@@ -53,13 +53,13 @@ class Process {
         println("score of Books : $bookScores")
 
 
-        val libraries = hashMapOf<Int, Library>()
+        val libraries = hashMapOf<Long, Library>()
         // itere sur les librairies
-        (0 until librairyNumbers).forEach { libraryNumber ->
+        (0L until librairyNumbers).forEach { libraryNumber ->
             var line = lines[readIndex]
             readIndex++
 
-            val (nbBooks, signup, nbBookPerDay) = line.split(" ").map { Integer.parseInt(it) }
+            val (nbBooks, signup, nbBookPerDay) = line.split(" ").map { it.toLong() }
 
             val library = Library(libraryNumber, nbBooks, signup, nbBookPerDay)
             libraries[libraryNumber] = library
@@ -100,10 +100,10 @@ class Process {
         val submissionLibs = arrayListOf<Library>()
 
 
-        var sumSignup = 0
+        var sumSignup = 0L
         while(sumSignup < dayNumbers && libraries.isNotEmpty()) {
 
-            var scoreMax = Int.MIN_VALUE
+            var scoreMax = Long.MIN_VALUE
             var libMax:Library = libraries.iterator().next().value
 
             libraries.forEach { (key, lib) ->
@@ -117,14 +117,18 @@ class Process {
             // on la retire des librairies
             libraries.remove(libMax.id)
 
+            val toRemove = arrayListOf<Library>()
             libMax.books.forEach { book ->
                 libsForABook[book]!!.forEach { lib ->
                     if(lib != libMax)
                         lib.books.remove(book)
-
+                        if (lib.books.isEmpty()) {
+                            toRemove.add(lib)
+                        }
                 }
             }
 
+            toRemove.forEach { lib -> libraries.remove(lib.id) }
             sumSignup += libMax.signupProcess
         }
 
@@ -161,13 +165,12 @@ class Process {
 
     }
 
-    fun score(library: Library, sumSignup: Int, maxDays: Int): Int {
-        var sum = 0
+    fun score(library: Library, sumSignup: Long, maxDays: Long): Long {
+        var sum = 0L
         val finish = sumSignup + library.signupProcess;
-        val remainingDays = if(maxDays - finish <= 0) 0 else (maxDays - finish)
-
-        val maxNbBook = min(remainingDays * library.numberOfBooksPerDay, library.books.size);
-        library.books.subList(0, maxNbBook).forEach {
+        val remainingDays = max(maxDays - finish, 0)
+        val maxNbBook = min(remainingDays * library.numberOfBooksPerDay, library.books.size.toLong());
+        library.books.subList(0, maxNbBook.toInt()).forEach {
             sum += bookScores[it]!!
         }
         return sum / library.signupProcess
