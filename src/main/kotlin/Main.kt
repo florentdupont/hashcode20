@@ -8,8 +8,8 @@ fun main() {
     val path = homePath + resourcesPath
 
 
-   // run("$path/a_example.txt", "$path/a_example.out")
-    run("$path/b_read_on.txt", "$path/b_read_on.out")
+    run("$path/a_example.txt", "$path/a_example.out")
+//    run("$path/b_read_on.txt", "$path/b_read_on.out")
 
 }
 
@@ -22,7 +22,7 @@ fun run(inFile:String, outFile:String) {
     val first = lines[readIndex]
     readIndex++
 
-    println(first)
+//    println(first)
     val (bookNumbers, librairyNumbers, dayNumbers) = first.split(" ")
                                                                          .map { Integer.parseInt(it) }
 
@@ -34,14 +34,14 @@ fun run(inFile:String, outFile:String) {
     var line = lines[readIndex]
     readIndex++
 
-    println(line)
+//   / println(line)
     val scoreOfBooks = line.split(" ").map { Integer.parseInt(it) }
 
     val bookScores = hashMapOf<Int, Int>()
-    println(scoreOfBooks)
+//    println(scoreOfBooks)
     scoreOfBooks.forEachIndexed { index, score -> bookScores[index] = score }
 
-    println(bookScores)
+    println("score of Books : $bookScores")
 
 
     val libraries = hashMapOf<Int, Library>()
@@ -63,11 +63,15 @@ fun run(inFile:String, outFile:String) {
         library.books = books
     }
 
-    println(libraries)
+    println("libraries :")
+//    println(libraries)
+    libraries.forEach {
+        println(it)
+    }
 
-    
+
     // traitement
-    
+
 
 
 
