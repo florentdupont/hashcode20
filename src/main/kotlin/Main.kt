@@ -14,7 +14,7 @@ fun main() {
 //    Process().run("$path/c_incunabula.txt", "$path/c_incunabula.out")
     Process().run("$path/d_tough_choices.txt", "$path/d_tough_choices.out")
 //    Process().run("$path/e_so_many_books.txt", "$path/e_so_many_books.out")
-//    Process().run("$path/f_libraries_of_the_world.txt", "$path/f_libraries_of_the_world.out")
+    Process().run("$path/f_libraries_of_the_world.txt", "$path/f_libraries_of_the_world.out")
 
 }
 
